@@ -1,0 +1,292 @@
+*********************************************************************
+* Analista    : Airam Miranda de Almeida
+* Programador : o Proprio
+*********************************************************************
+* Programa    : INICIO.PRG
+* Data        : 26/07/94
+* Objetivo    : PROGRAMA DE INICIALIZACAO DO SISTEMA
+* PRG's       : MENU
+* DBF's       :
+* Alteracao   :
+************************* inicio ************************************
+*-------------------- parametros do sistema  ---------------
+*RUN CD\SIS\SAN\EXE
+*SETCANCEL(.T.)
+SET TALK OFF
+SET WRAP ON
+SET STATUS OFF
+SET SCOREBOARD OFF
+SET DATE BRITISH
+SET CENTURY ON
+SET BELL OFF
+SET INTE OFF
+SET SAFETY OFF
+SET EXACT ON
+SET DELETE ON
+SET ESCAPE OFF
+SET FIXED OFF
+SET MESSAGE TO 21
+SET EXCLUSIVE OFF
+SET DELIMITERS OFF
+SET COLOR TO W/N,+W/R
+*SET FUNCTION 1  TO CHR(0)
+*SET FUNCTION 2  TO CHR(0)
+*SET FUNCTION 3  TO CHR(0)
+*SET FUNCTION 4  TO CHR(0)
+*SET FUNCTION 5  TO CHR(0)
+*SET FUNCTION 6  TO CHR(0)
+*SET FUNCTION 7  TO CHR(0)
+*SET FUNCTION 8  TO CHR(0)
+*SET FUNCTION 9  TO CHR(0)
+*SET FUNCTION 10 TO CHR(0)
+SET KEY 28 TO HELP()
+SET KEY -1 TO CALCULA()
+SET PROCEDURE TO PROCEDIM
+DO FUNCOES
+CLEAR ALL
+CLEAR
+*--------------------- fim  --------------------------------------
+*--------------- variaveis gerais do sistema  --------------------
+
+PUBLIC sisBAR,sisSINO,sisDATA,sisHORA,sisSENHA,sisTRUE
+PUBLIC sisSIS,sisMOD,sisNIV,sisLETRAC,sisLETRAE,sisLETRAN
+PUBLIC sisTIT1,sisTIT2,sisTIT3,sisDISK,sisINTERR,sisMOEDA
+PUBLIC sisVERSAO,pEXT,sisDADOS,sisUSUARIO,sisCGC_CPF
+PUBLIC pNUM_EXT1,pNUM_EXT2,pNUM_EXT3,sisCIDADE
+sisBAR=REPLICATE(CHR(177),77)              && barra da tela.
+sisSINO=CHR(7)                             && apito.
+sisOP=SPACE(1)                             && variavel de opcao.
+sisRESP=SPACE(1)                           && resposta do tipo (S/N).
+sisDATA=DTOC(DATE())                       && data do sistema.
+sisEXT=SPACE(40)                           && data por extenso.
+sisHORA=TIME()                             && hora de entrada no sistema.
+sisDISK=SPACE(1)                           && drive ativo.
+sisSENHA=SPACE(10)                         && senha do usuario.
+sisUSUARIO=SPACE(10)                       && nome do usuario.
+sisTRUE=.F.                                && testa validade da senha.
+sisSIS=SPACE(1)                            && sistema permitido a semha fornecida.
+sisMOD=SPACE(1)                            && modulo de acesso no sistema permitido.
+sisNIV=SPACE(1)                            && nivel de acesso dentro do modulo do sistema.
+sisTENT=1                                  && tentativas de senhas invalidas.
+sisLETRAE=CHR(14)                          && letra expandida.
+sisLETRAC=CHR(15)                          && letra comprimida.
+sisLETRAN=CHR(18)                          && letra normal.
+SELE 1
+USE STATUS
+GOTO TOP
+eDATA_S  = DATA_S                          && Data Ultima atualiza‡Æo
+sisTIT1=ALLTRIM(EMPRESA)                   && titulo-1.
+sisTIT2=ALLTRIM(SISTEMA)                   && titulo-2.
+sisTIT3=ALLTRIM(DEPTO)                     && titulo-3.
+sisCGC_CPF=CGC_CPF                         && CGC/CPF da Empresa
+sisVERSAO=ALLTRIM(VERSAO)                  && Versao atual
+sisMOEDA=ALLTRIM(MOEDA)                    && moeda corrente
+pEXT=SPACE(20)                             && Data por Extenso
+sisCIDADE=ALLTRIM(CIDADE)                  && Cidade da Empresa
+sisDADOS='C:\SIS\SAN\EXE\'                 && Subdiretorio de Dados
+*---------------------  fim  -----------------------------
+*-----------------  rotina de arquivo --------------------
+CLEAR
+DO PTELA WITH sisTIT1,sisTIT2,sisTIT3,sisBAR
+SET COLOR TO R+/N+*
+DO PCENTRA WITH 'Copyright By, All Rights Reserved ',07
+DO PCENTRA WITH 'SIMBOLO REENGENHARIA EMPRESARIAL S/C LTDA.',09
+SET COLOR TO B+/N+
+DO PCENTRA WITH 'CGC: 02.078.733/0001-74 Inscr. Municipal: 104.574/1 ',11
+DO PCENTRA WITH 'Reengenharia Empresarial, Administra‡Æo de Empresas e Informatiza‡Æo',12
+SET COLOR TO GR+/N+
+DO PCENTRA WITH 'Rua Guiana, 203 - Vista Verde',14
+DO PCENTRA WITH 'Sƒo Jos‚ dos Campos - SP',15
+DO PCENTRA WITH 'Cep 12223-300',16
+DO PCENTRA WITH 'Fone/Fax : (012) 329-6493',17
+DO PCENTRA WITH 'Web : www.iconet.com.br/simbolo',19
+DO PCENTRA WITH 'e-mail : simbolo@iconet.com.br',20
+@ 22,00 SAY ' '
+eFAZ = .F.
+DO REINDEXA
+*-------------------------  fim  ---------------------------
+*---------------- Rotina Teste de Senha --------------------
+DO PLIMPA
+SELE 9
+USE CAD_USU INDEX CAD_USU
+GOTO TOP
+*SELE 2
+*USE LOG_USU
+*GOTO TOP
+eACESSO = .F.
+eVEZES  = 1
+DO WHILE eVEZES <= 3
+   sisUSUARIO = SPACE(10)
+   sisSENHA   = SPACE(10)
+   @ 11,24 TO 16,56
+   SET COLOR TO W/R+,+W/W
+   SET INTE ON
+   DO PCENTRA WITH 'Agora com Help on-line, Pressione F1.',18
+   DO PCENTRA WITH 'Controle de Acesso',11
+   SET COLOR TO W/N,+W/N
+   @ 13,30 SAY 'Usu rio : ' GET sisUSUARIO PICT '@!XXXXXXXXXX'
+   READ
+   SET COLOR TO
+   SET COLOR TO W/N,X/X
+   @ 14,30 SAY 'Senha   : '
+   @ 14,41 GET sisSENHA   PICT '@!XXXXXXXXXX'
+   READ
+   SET COLOR TO W/N,+W/R
+   SET INTE ON
+   SELE 9
+   SEEK sisUSUARIO
+   IF FOUND()
+      IF sisSENHA = SENHA
+	 eACESSO = .T.
+	 EXIT
+      ELSE
+	 DO PLIMPA WITH '01'
+	 DO PMSGR WITH 'Senha Inv lida !',3
+	 eVEZES = eVEZES + 1
+	 LOOP
+      ENDIF
+   ELSE
+      DO PLIMPA WITH '01'
+      DO PMSGR WITH 'Usu rio Inv lido !',3
+      eVEZES = eVEZES + 1
+      LOOP
+   ENDIF
+ENDDO
+*-------------------------  fim  ---------------------------
+*------------------- Chamada do Sistema -------------------
+SELE 9
+IF eDATA_S <> LUPDATE() .AND. sisUSUARIO <> 'MASTER'
+   DO PLQUA WITH '01'
+   DO PMENSAG WITH 'Violada Integridade do Sistema, Contacte Usu rio Master ...'
+   DO PPARA
+   CLOSE ALL
+ELSE
+   IF eACESSO
+      DO MENU
+   ENDIF
+ENDIF
+*---------------  rotina finaliza sistema  ----------------
+CLOSE DATABASES
+SELE 9
+USE CAD_USU
+eDATA_S = LUPDATE()
+USE
+USE STATUS
+IF F_BLOQR()
+   REPLACE DATA_S WITH eDATA_S
+ENDIF
+USE
+CLEAR
+*@ 01,21 TO 08,46 DOUBLE
+*@ 02,24 SAY 'Processamento do Dia'
+*@ 03,30 SAY sisDATA
+*@ 04,23 SAY 'Tempo de Processamento'
+*@ 05,25 SAY 'In¡cio : '+sisHORA
+*sisHSAI=TIME()
+*@ 06,25 SAY 'T‚rmino: '+sisHSAI
+*@ 09,21 SAY ' '
+*sisSEGI=(VAL(SUBSTR(sisHORA,1,2))*3600)+(VAL(SUBSTR(sisHORA,4,2))*60);
+*+(VAL(SUBSTR(sisHORA,7,2)))
+*sisSEGF=(VAL(SUBSTR(TIME(),1,2))*3600)+(VAL(SUBSTR(TIME(),4,2))*60);
+*+(VAL(SUBSTR(TIME(),7,2)))
+*sisDELTA=(sisSEGF-sisSEGI)
+*sisMIN=INT(sisDELTA/60)
+*sisSEG=sisDELTA-sisMIN*60
+*sisHOR=INT(sisMIN/60)
+*sisMIN=sisMIN-sisHOR*60
+*sisTEMPO=IIF(sisHOR<10,'0'+STR(sisHOR,1),STR(sisHOR,2))+':';
+*+IIF(sisMIN<10,'0'+STR(sisMIN,1),STR(sisMIN,2))+':';
+*+IIF(sisSEG<10,'0'+STR(sisSEG,1),STR(sisSEG,2))
+*@ 07,25 SAY 'Total  : '+sisTEMPO
+SET COLOR TO R+/N+*
+DO PCENTRA WITH 'Copyright By, All Rights Reserved ',07
+DO PCENTRA WITH 'SIMBOLO REENGENHARIA EMPRESARIAL S/C LTDA.',09
+SET COLOR TO B+/N+
+DO PCENTRA WITH 'CGC: 02.078.733/0001-74 Inscr. Municipal: 104.574/1 ',11
+DO PCENTRA WITH 'Reengenharia Empresarial, Administra‡Æo de Empresas e Informatiza‡Æo',12
+SET COLOR TO GR+/N+
+DO PCENTRA WITH 'Rua Guiana, 203 - Vista Verde',14
+DO PCENTRA WITH 'Sƒo Jos‚ dos Campos - SP',15
+DO PCENTRA WITH 'Cep 12223-300',16
+DO PCENTRA WITH 'Fone/Fax : (012) 329-6493',17
+DO PCENTRA WITH 'Web : www.iconet.com.br/simbolo',19
+DO PCENTRA WITH 'e-mail : simbolo@iconet.com.br',20
+@ 22,00 SAY ' '
+DO PPARA
+SET COLOR TO W/N,+W/R
+SET PROCEDURE TO
+CLOSE ALL
+CLEAR ALL
+RETURN
+*---------------- Funcao de Controle de Acesso -------------
+FUNCTION F_ACESSO
+   **** Funcao de controle de acesso a m¢dulos
+   PARAMETERS fTIPO
+   eRETORNO = .F.
+   SELE 9
+   USE CAD_USU INDEX CAD_USU
+   GOTO TOP
+   SEEK sisUSUARIO
+   IF &fTIPO
+      eRETORNO = .T.
+   ENDIF
+   SELE 9
+   USE
+RETURN eRETORNO
+*-------------------------  fim  ---------------------------
+FUNCTION F_BLOQR
+   **** Funcao de Bloqueio a Registros
+   SAVE SCREEN TO TELA999
+   eRETORNO = .F.
+   DO WHILE .T.
+      DO PLQUA WITH '01'
+      DO PMENSAG WITH 'Aguarde, Registro em Uso Tentando ACESSO.'
+      IF RLOCK()
+	 eRETORNO = .T.
+	 DO PLQUA WITH '01'
+	 EXIT
+      ELSE
+	 LOOP
+      ENDIF
+   ENDDO
+   RESTORE SCREEN FROM TELA999
+RETURN eRETORNO
+*-------------------------  fim  ---------------------------
+FUNCTION F_BLOQA
+   **** Funcao de Bloqueio a Arquivos
+   SAVE SCREEN TO TELA999
+   eRETORNO = .F.
+   DO WHILE .T.
+      DO PLQUA WITH '01'
+      DO PMENSAG WITH 'Aguarde, Arquivo em Uso, Tentando ACESSO'
+      IF FLOCK()
+	 eRETORNO = .T.
+	 DO PLQUA WITH '01'
+	 EXIT
+      ELSE
+	 LOOP
+      ENDIF
+   ENDDO
+   RESTORE SCREEN FROM TELA999
+RETURN eRETORNO
+*-------------------------  fim  ---------------------------
+*------------------ Funcao de Log de Acesso ----------------
+FUNCTION F_LACESSO
+   **** Funcao de script de acesso a m¢dulos
+   PARAMETERS fUSUARIO,fMODULO,fACAO
+   SELE 9
+   USE LOG_USU 
+   GOTO TOP
+   APPEND BLANK
+   IF F_BLOQR()
+      REPLACE DATA    WITH DATE(),;
+	      HORA    WITH TIME(),;
+	      USUARIO WITH fUSUARIO
+      REPLACE MODULO  WITH fMODULO,;
+	      ACAO    WITH fACAO
+      UNLOCK
+   ENDIF
+   SELE 9
+   USE
+RETURN .T.
+*-------------------------  fim  ---------------------------

@@ -1,0 +1,196 @@
+*********************************************************************
+* Sistema     : Gest∆o de Financiamentos
+* Copyright   : Airam Miranda de Almeida
+* Programador : Airam Miranda de Almeida
+*********************************************************************
+* Programa    : CAD_PAGP.PRG
+* Data        : 01/01/99
+* Objetivo    : CADASTRO DE PAGAMENTO DE PARCELAS POR PROPRIETARIO
+* PRG's       : ---
+* DBF's       : ---
+* Alteracao   :
+*********************************************************************
+SAVE SCREEN TO TELA03
+DO PTIT WITH 'PAGAMENTO DE PARCELAS POR PROPRIETARIO - TS'
+SELE 1
+USE UNI_IMOB INDEX UNI_IMOB
+GO TOP
+SELE 2
+USE CLAS_PRO INDEX CLAS_PRO
+GOTO TOP
+SELE 3
+USE CAD_QUAD INDEX CAD_QUAD
+GOTO TOP
+SELE 4
+USE CAD_APAR INDEX CAD_APAR
+GOTO TOP
+SELE 5
+USE CONTATO INDEX CONTATO,NUM_CLIE
+GOTO TOP
+SELE 6
+USE CAD_VEND INDEX CAD_VEND,DATA_VEN
+GOTO TOP
+SELE 7
+USE TAXA_MES INDEX TAXA_MES
+GOTO TOP
+SELE 8
+USE STATUS
+eANATOCISMO = ANATOCISMO
+eCPF_CGC   = CGC_CPF
+eTX_MULTA  = MULTA/100
+eTX_DESCON = DESCONTO/100
+eCIDADE    = CIDADE
+eCORR_ATRA = CORR_ATRA
+eCORRECAO  = 0
+eDIA_VECC  = 0
+eMES_VECC  = 0
+eANO_VECC  = 0
+eDIA_VENC  = 0
+eMES_VENC  = 0
+eANO_VENC  = 0
+eDIA_PAGO  = 0
+eMES_PAGO  = 0
+eANO_PAGO  = 0
+eNUM_BANCO = SPACE(3)
+eNUM_AGENC = SPACE(10)
+eNUM_CONTA = SPACE(15)
+eNUM_CHEQUE= SPACE(15)
+USE
+SELE 8
+* Cadastro de Parcelas
+SELE 5
+GOTO TOP
+DO PLIMPA
+SET COLOR TO W/N,+W/R
+eNUM_CLIE = 0
+ePESQUISA = SPACE(49)
+@ 05,02 SAY 'Nome :' GET ePESQUISA PICT '@! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+READ
+ePESQUISA = ALLTRIM(ePESQUISA)
+SEEK ePESQUISA
+DECLARE CAMPO[2],PIC[2],CAB[2],LENS[2]
+AFIELDS(CAMPO,.T.,LENS)
+CAMPO[2]='CPF_CGC'
+LENS[2]=14
+PIC[1]='@S50'
+PIC[2]='@S14'
+CAB[1]='  NOME'
+CAB[2]='CGC/CPF'
+DBEDIT(5,05,5,79,CAMPO,'KEYS_4',PIC,CAB,' ',' ',' ')
+eNUM_CLIE = NUM_CLIE
+@ 06,02 SAY 'Codigo      :' GET eNUM_CLIE PICT '99999'
+CLEAR GETS
+SELE 1
+SET FILTER TO PROPRIET_1 = eNUM_CLIE .OR. PROPRIET_2 = eNUM_CLIE
+GOTO TOP
+IF EOF()
+   DO PMSGR  WITH 'ATENÄ«O !!!',3
+   DO PMENSAG WITH 'N∆o h† Vendas Para Este Cliente !'
+   DO PPARA
+   CLOSE DATABASES
+   RESTORE SCREEN FROM TELA03
+   RETURN
+ENDIF
+DECLARE CAMPO[8],PIC[8],CAB[8],LENS[8]
+AFIELDS(CAMPO,.T.,LENS)
+CAMPO[5]='PROPRIET_1'
+CAMPO[6]='QUITADO_1'
+CAMPO[7]='PROPRIET_2'
+CAMPO[8]='QUITADO_2'
+LENS[5]=5
+LENS[6]=1
+LENS[7]=5
+LENS[8]=1
+PIC[1]='@R99999'
+PIC[2]='@R99999'
+PIC[3]='@R99999'
+PIC[4]='@R99999'
+PIC[5]='@R99999'
+PIC[6]='@R99999'
+CAB[1]=' Produto '
+CAB[2]='Grupo'
+CAB[3]='Unid'
+CAB[4]='Status'
+CAB[5]='1o. Proprietario'
+CAB[6]='Quitacao 1o.'
+CAB[7]='2o. Proprietario'
+CAB[8]='Quitacao 2o.'
+@ 07,00 TO 21,79 DOUBLE
+DBEDIT(8,01,21,78,CAMPO,'FUNC_PRPR',PIC,CAB,CHR(196),CHR(179),CHR(205))
+IF EOF()
+   DO PLIMPA WITH '01'
+   DO PMSGR  WITH 'ATENÄ«O !!!',3
+   DO PMENSAG WITH 'ESSA PORRA N«O FUNCIONA !!!'
+   DO PPARA
+ENDIF
+DO PLIMPA
+DO PMENSAG WITH 'Aguarde, Localizando parcelas ...'
+eCLAS_PRO   = CLASSE
+eQUADRA     = QUADRA
+eNUM_IMOVEL = NUM_IMOVEL
+eSTATUS     = STATUS
+SELE 2
+SEEK VAL(eCLAS_PRO)
+eTIPO_PRO  = TIPO
+eCONTA     = COD_CONTA
+eCONTA_ORI = COD_CONTA
+@ 05,02 SAY 'Produto : '+eCLAS_PRO+' - '+DESCRICAO
+SELE 1
+DO CASE
+   CASE eTIPO_PRO = 1
+      DO WHILE .T. 
+         * Consulta de Produtos
+	 SELE 3
+         SET FILTER TO NUM_LOTEAM = eCLAS_PRO .AND. NUM_QUADRA = eQUADRA .AND. CADASTRO
+	 GOTO TOP
+         @ 06,02 SAY ALLTRIM(sisGRUPO1)+' : '+eQUADRA
+         eQUADRA     = NUM_QUADRA
+         eNUM_INICIO = NUM_INICIO
+         eNUM_FINAL  = NUM_FINAL
+         SELE 1
+         SET FILTER TO CLASSE = eCLAS_PRO .AND. QUADRA = eQUADRA .AND. IIF(STATUS = 0,(PROPRIET_1 <> 1),(PROPRIET_1 <> 1 .OR. PROPRIET_2 <> 1))
+         GOTO TOP
+         IF eSTATUS = 0
+            @ 07,02 SAY ALLTRIM(sisUNID1)+' : '+eNUM_IMOVEL
+            ePROPR_1 = eNUM_CLIE
+            ePARTE = 0
+            F_PAGB(VAL(eCLAS_PRO),eQUADRA,eNUM_IMOVEL,ePARTE,ePROPR_1)
+         ELSE
+            ePROPR_1 = eNUM_CLIE
+            ePARTE = 1
+            F_PAGB(VAL(eCLAS_PRO),eQUADRA,eNUM_IMOVEL,ePARTE,ePROPR_1)
+         ENDIF
+         EXIT
+      ENDDO
+   CASE eTIPO_PRO = 2
+      DO WHILE .T.
+	 * Consulta de Apartamentos
+         SELE 4
+         SET FILTER TO NUM_LOTEAM = eCLAS_PRO .AND. NUM_BLOCO = eQUADRA .AND. CADASTRO
+	 GOTO TOP
+         @ 06,02 SAY ALLTRIM(sisGRUPO1)+' : '+ALLTRIM(eQUADRA)+'- '+DESCRICAO
+         eQUADRA     = NUM_BLOCO
+         eQUATIDADE  = QUANTIDADE
+         SELE 1
+         SET FILTER TO CLASSE = eCLAS_PRO .AND. QUADRA = eQUADRA .AND. IIF(STATUS = 0,(PROPRIET_1 <> 1),(PROPRIET_1 <> 1 .OR. PROPRIET_2 <> 1))
+         GOTO TOP
+         IF eSTATUS = 0
+            @ 07,02 SAY ALLTRIM(sisUNID1)+' : '+eNUM_IMOVEL
+            ePARTE = 0
+            ePROPR_1 = eNUM_CLIE
+            F_PAGB(VAL(eCLAS_PRO),eQUADRA,eNUM_IMOVEL,ePARTE,ePROPR_1)
+         ELSE
+            ePARTE = 1
+            ePROPR_1 = eNUM_CLIE
+            F_PAGB(VAL(eCLAS_PRO),eQUADRA,eNUM_IMOVEL,ePARTE,ePROPR_1)
+         ENDIF
+         EXIT
+      ENDDO
+   OTHERWISE
+      * Consulta de Casa/Terrenos/etc...
+      DO PDESENV
+ENDCASE
+CLOSE DATABASES
+RESTORE SCREEN FROM TELA03
+RETURN
+***************************** fim ***********************************

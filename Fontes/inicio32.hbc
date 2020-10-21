@@ -1,0 +1,6 @@
+incpaths=
+libpaths=
+libs=gtwvg
+gt=gtwin
+mt=yes
+instpaths=

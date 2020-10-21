@@ -1,0 +1,837 @@
+//************************* inicio ************************************
+function REINDEXA()
+IF eFAZ
+   dbcloseall()
+   CLOSE DATABASES
+   eMENSAGEM = ""
+   eBASE     = "Reindexando Arquivo : "   
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   SET EXCLUSIVE ON
+   SELE 1
+   USE STATUS
+   IF F_BLOQR()
+      REPLACE CONTROLE WITH CONTROLE + 1
+      REPLACE SISTEMA WITH "GITANO - FINANCIAMENTOS - 2019",;
+              DEPTO   WITH "airam1968@terra.com.br",;
+              VERSAO  WITH "2019"
+      REPLACE SISTEMA WITH "GITANO - FINANCIAMENTOS - 2019",;
+              DEPTO   WITH "airam1968@terra.com.br",;
+              VERSAO  WITH "2019"              
+      UNLOCK
+   ENDIF
+   SELE 1
+   USE STATUS
+   PACK
+   GOTO TOP
+   eCONTROLE = CONTROLE
+   USE
+   eMENSAGEM = ""   
+   eMENSAGEM = eBASE + "STATUS.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE LOG_USU
+   PACK
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "LOG_USU.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   SELE 9
+   USE CAD_USU
+   DELE ALL FOR USUARIO = SPACE(10) .OR. SENHA = SPACE(10)
+   GOTO TOP
+   PACK
+   INDEX ON USUARIO TO CAD_USU
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CAD_USU.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   SELE 1
+   USE CONTATO
+   PACK
+   USE
+   IF eCONTROLE < 0
+      USE CONTNEW
+      GOTO TOP
+      APPEND FROM CONTATO
+      GOTO TOP
+      COPY TO CONTATO
+      ZAP
+      USE
+   ENDIF
+   USE CONTATO
+   GOTO TOP
+   INDEX ON CLIENTE TO CONTATO
+   GOTO TOP
+   INDEX ON NUM_CLIE TO NUM_CLIE
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CONTATO.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   SELE 1
+   USE
+   USE CAR_PADR
+   INDEX ON NOME TO CAR_PADR
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CAR_PADR.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   SELE 1
+   USE
+   USE TIPO_PRO
+   GOTO TOP
+   INDEX ON CODIGO TO TIPO_PRO
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "TIPO_PRO.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE CLAS_PRO
+   PACK
+   GOTO TOP
+   INDEX ON CODIGO TO CLAS_PRO
+   GOTO TOP
+   INDEX ON DESCRICAO TO DESC_PRO
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CLAS_PRO.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE CAD_QUAD
+   PACK
+   GOTO TOP
+   INDEX ON NUM_LOTEAM+NUM_QUADRA TO CAD_QUAD
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CAD_QUAD.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE CAD_APAR
+   PACK
+   GOTO TOP
+   INDEX ON NUM_LOTEAM+NUM_BLOCO TO CAD_APAR
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CAD_APAR.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE UNI_IMOB
+   PACK
+   GOTO TOP
+   INDEX ON CLASSE+QUADRA+NUM_IMOVEL TO UNI_IMOB
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "UNI_IMOB.DBF"
+
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE CAD_VEND
+   PACK
+   IF eCONTROLE < 1
+      USE
+      USE TEM_VEND
+      GOTO TOP
+      ZAP
+      USE
+      USE CAD_VEND
+      GOTO TOP
+      SORT TO TEM_VEND ON CLASSE,QUADRA,NUM_IMOVEL,STR(STATUS,1)
+      GOTO TOP
+      USE
+      USE TEM_VEND
+      COPY TO CAD_VEND
+      USE
+      USE CAD_VEND
+      GOTO TOP
+   ENDIF
+
+   GOTO TOP
+   INDEX ON CLASSE+QUADRA+NUM_IMOVEL+STR(PARTE,1) TO CAD_VEND
+   GOTO TOP
+   INDEX ON DATA_VENDA TO DATA_VEN
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CAD_VEND.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   
+   USE CAD_QUIT
+   PACK
+   GOTO TOP
+   REPLACE ALL CONTABIL WITH .T.
+   REPLACE ALL ATIVA    WITH .T.
+   GOTO TOP
+   INDEX ON CLASSE+QUADRA+NUM_IMOVEL+STR(PARTE,1) TO CAD_QUIT
+   GOTO TOP
+   USE
+   IF eCONTROLE < 1
+      USE
+      USE CAD_PARC
+      ZAP
+      GOTO TOP
+      APPEND FROM CAD_QUIT
+      GOTO TOP
+      COPY TO CAD_QUIT
+      ZAP
+      COPY TO TEMP_PAR
+      USE
+      eMENSAGEM = ""
+      eMENSAGEM = eBASE + "CAD_PARC.DBF"
+      PLQUA ("01")
+      PMENSAG (eMENSAGEM)
+      USE CAD_QUIT
+      GOTO TOP
+      * Ajuste para Periodicidade de Comiss‡o
+      SET FILTER TO PERID_COMI = SPACE(4)
+      GOTO TOP
+      REPLACE ALL PERID_COMI WITH "a.m."
+      GOTO TOP
+      SET FILTER TO
+      GOTO TOP
+      eMENSAGEM = ""
+      eMENSAGEM = eBASE + "CAD_QUIT.DBF"
+      PLQUA ("01")
+      PMENSAG (eMENSAGEM)      
+   ENDIF
+   USE CAD_PARC
+   GOTO TOP   
+   INDEX ON CLASSE+QUADRA+NUM_IMOVEL+NUM_PARC TO CAD_QUIT
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CAD_QUIT.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE INDICES
+   PACK
+   GOTO TOP
+   INDEX ON NOME TO INDICES
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "INDICES.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE TAXA_DIA
+   PACK
+   GOTO TOP
+   INDEX ON DATA TO TAXA_DIA
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "TAXA_DIA.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE TAXA_MES
+   PACK
+   GOTO TOP
+   INDEX ON ANO+MES TO TAXA_MES
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "TAXA_MES.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE CORRETOR
+   PACK
+   GOTO TOP
+   INDEX ON CODIGO TO CORRETOR
+   GOTO TOP
+   USE
+   SELE 1
+   USE CAD_QUAD INDEX CAD_QUAD
+   PACK
+   GOTO TOP
+   SET FILTER TO CADASTRO
+   GOTO TOP
+   DO WHILE .NOT. EOF()
+      eZERO = "000"
+      eARQ  = "CP"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_LOTEAM))))+ALLTRIM(NUM_LOTEAM)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_QUADRA))))+ALLTRIM(NUM_QUADRA)+".DBF" 
+      eIND1 = "IG"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_LOTEAM))))+ALLTRIM(NUM_LOTEAM)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_QUADRA))))+ALLTRIM(NUM_QUADRA) 
+      eIND2 = "IV"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_LOTEAM))))+ALLTRIM(NUM_LOTEAM)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_QUADRA))))+ALLTRIM(NUM_QUADRA)  
+      eIND3 = "IP"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_LOTEAM))))+ALLTRIM(NUM_LOTEAM)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_QUADRA))))+ALLTRIM(NUM_QUADRA)  
+      SELE 2
+      IF FILE(eARQ)
+         USE &eARQ
+         PACK
+         IF eCONTROLE < 1
+            USE
+            USE CAD_PARC
+            ZAP
+            GOTO TOP
+            APPEND FROM &eARQ
+            GOTO TOP
+            COPY TO &eARQ
+            ZAP
+            USE
+            USE &eARQ
+            GOTO TOP
+            * Ajuste para Periodicidade de Comiss‡o
+            SET FILTER TO PERID_COMI = SPACE(4)
+            GOTO TOP
+            REPLACE ALL PERID_COMI WITH "a.m."
+            GOTO TOP
+            SET FILTER TO
+            GOTO TOP
+         ENDIF
+         SELE 2
+         GOTO TOP
+         INDEX ON CLASSE+QUADRA+NUM_IMOVEL+STR(PARTE,1) TO &eIND1
+         GOTO TOP
+         INDEX ON DATA_VENC TO &eIND2
+         GOTO TOP
+         INDEX ON DATA_PGTO TO &eIND3
+         GOTO TOP
+         eMENSAGEM = ""
+         eMENSAGEM = eBASE + eARQ
+         PLQUA ("01")
+         PMENSAG (eMENSAGEM)         
+      ELSE
+         PLQUA ("01")
+	 PMSGR ("Aten‡Æo !",1)
+         PMENSAG ("Arquivo nÆo Localizado - "+eARQ+" - Avise ao Suporte, Tecle Enter.")
+      ENDIF
+      SELE 1
+      SKIP
+   ENDDO
+   SELE 1
+   USE CAD_APAR INDEX CAD_APAR
+   PACK
+   GOTO TOP
+   SET FILTER TO CADASTRO
+   GOTO TOP
+   DO WHILE .NOT. EOF()
+      eZERO = "000"
+      eARQ  = "CP"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_LOTEAM))))+ALLTRIM(NUM_LOTEAM)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_BLOCO))))+ALLTRIM(NUM_BLOCO)+".DBF"  
+      eIND1 = "IG"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_LOTEAM))))+ALLTRIM(NUM_LOTEAM)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_BLOCO))))+ALLTRIM(NUM_BLOCO)
+      eIND2 = "IV"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_LOTEAM))))+ALLTRIM(NUM_LOTEAM)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_BLOCO))))+ALLTRIM(NUM_BLOCO)  
+      eIND3 = "IP"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_LOTEAM))))+ALLTRIM(NUM_LOTEAM)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(NUM_BLOCO))))+ALLTRIM(NUM_BLOCO)  
+      SELE 2
+      IF FILE(eARQ)
+         USE &eARQ
+         PACK
+         IF eCONTROLE < 1
+            USE
+            USE CAD_PARC
+            ZAP
+            GOTO TOP
+            APPEND FROM &eARQ
+            GOTO TOP
+            COPY TO &eARQ
+            ZAP
+            USE
+            USE &eARQ
+            GOTO TOP
+            * Ajuste para Periodicidade de Comiss‡o
+            SET FILTER TO PERID_COMI = SPACE(4)
+            GOTO TOP
+            REPLACE ALL PERID_COMI WITH "a.m."
+            GOTO TOP
+            SET FILTER TO
+            GOTO TOP
+            eMENSAGEM = ""
+            eMENSAGEM = eBASE + eARQ
+            PLQUA ("01")
+            PMENSAG (eMENSAGEM)              
+         ENDIF
+         SELE 2
+         GOTO TOP
+         INDEX ON CLASSE+QUADRA+NUM_IMOVEL+STR(PARTE,1) TO &eIND1
+         GOTO TOP
+         INDEX ON DATA_VENC TO &eIND2
+         GOTO TOP
+         INDEX ON DATA_PGTO TO &eIND3
+         GOTO TOP
+      ELSE
+         PLQUA ("01")
+	 PMSGR ("Aten‡Æo",1)
+         PMENSAG ("Arquivo nÆo Localizado - "+eARQ+" - Avise ao Suporte, Tecle Enter.")
+      ENDIF
+      SELE 1
+      SKIP
+   ENDDO
+   SELE 1
+   USE
+   SELE 2
+   USE
+   SELE 1
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "RENEGOCI.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE RENEGOCI
+   PACK
+   GOTO TOP
+   INDEX ON CLASSE+QUADRA+NUM_IMOVEL+STR(PARTE,1) TO RENEGOCI
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CPAGAR.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE
+   COPY FILE CPAGAR.DBF to CPAGAR.BKP   
+   USE CPAGAR
+   DELETE ALL WHILE LANCAMENTO = 0
+   GOTO TOP
+   PACK
+   GOTO TOP
+   REPLACE ALL CONTABIL WITH .T.
+   GOTO TOP
+   DO WHILE .NOT. EOF()
+      UNLOCK
+      SKIP
+   ENDDO
+   GOTO TOP
+   INDEX ON LANCAMENTO TO CPAGAR
+   GOTO TOP
+   INDEX ON DATA_PREV  TO DATA_CPV
+   GOTO TOP
+   INDEX ON DATA_REAL  TO DATA_CPG
+   GOTO TOP
+   INDEX ON NUM_CHEQUE TO NUM_CHEQ
+   GOTO TOP
+   INDEX ON DATA_NOTA TO DATA_NF
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CRECEBER.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE
+   COPY FILE CRECEBER.DBF to CRECEBER.BKP
+   USE CRECEBER
+   DELETE ALL WHILE LANCAMENTO = 0
+   GOTO TOP   
+   PACK
+   GOTO TOP
+   REPLACE ALL CONTABIL WITH .T.
+   GOTO TOP
+   DO WHILE .NOT. EOF()
+      UNLOCK
+      SKIP
+   ENDDO
+   GOTO TOP
+   INDEX ON LANCAMENTO TO CRECEBER
+   GOTO TOP
+   INDEX ON DATA_PREV  TO DATA_CRV
+   GOTO TOP
+   INDEX ON DATA_REAL  TO DATA_CRE
+   GOTO TOP
+   INDEX ON DATA_NOTA TO DATA_NF
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CLIENTES.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE CLIENTES
+   PACK
+   GOTO TOP
+   INDEX ON CODIGO TO CLIENTES
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "FORNECED.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE FORNECED
+   PACK
+   GOTO TOP
+   INDEX ON CODIGO TO FORNECED
+   GOTO TOP
+   USE
+   USE FORNECED
+   INDEX ON NOME TO TEMP_FOR
+   GOTO TOP
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CLAS_FOR.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE CLAS_FOR
+   PACK
+   GOTO TOP
+   INDEX ON CODIGO TO CLAS_FOR
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CLASSE_R.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE CLASSE_R
+   PACK
+   GOTO TOP
+   INDEX ON CODIGO TO CLASSE_R
+   GOTO TOP
+   USE
+   USE CLASSE_R
+   INDEX ON DESCRICAO TO TEMP_CLR
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "CLASSE_D.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE CLASSE_D
+   PACK
+   GOTO TOP
+   INDEX ON CODIGO TO CLASSE_D
+   GOTO TOP
+   USE
+   USE CLASSE_D
+   INDEX ON DESCRICAO TO TEMP_CLD
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "MSG_BOLE.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE MSG_BOLE
+   PACK
+   GOTO TOP
+   INDEX ON TIPO_PROD TO MSG_PROD
+   INDEX ON COD_MSG   TO MSG_BOLE
+   GOTO TOP
+   USE 
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "BANCOS.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE BANCOS
+   PACK
+   GOTO TOP
+   INDEX ON COD_BANCO TO BANCOS
+   GOTO TOP
+   USE
+   SELE 1
+   USE CONTAS
+   PACK
+   GOTO TOP
+   INDEX ON CODIGO TO CONTAS
+   GOTO TOP
+   USE CONTAS INDEX CONTAS
+   GOTO TOP
+   DO WHILE .NOT. EOF()
+      eCONTA = STR(CODIGO,5)
+      eZERO = "00"
+      eARQ  = "CONTA_"+SUBSTR(eZERO,1,(2-LEN(ALLTRIM(eCONTA))))+ALLTRIM(eCONTA)+".DBF"
+      eIND1 = "CONTA_"+SUBSTR(eZERO,1,(2-LEN(ALLTRIM(eCONTA))))+ALLTRIM(eCONTA) 
+      SELE 2
+      IF FILE(eARQ)
+         IF eCONTROLE < 0
+            GOTO TOP
+            SELE 2
+            USE
+            SELE 9
+            USE MOD_CAIX
+            ZAP
+            GOTO TOP
+            APPEND FROM &eARQ
+            GOTO TOP
+            SELE 2
+            USE
+            SELE 9
+            COPY TO &eARQ
+            GOTO TOP
+            ZAP
+            USE
+            SELE 2
+            eMENSAGEM = ""            
+            eMENSAGEM = eBASE + eARQ+".DBF"
+            PLQUA ("01")
+            PMENSAG (eMENSAGEM)              
+         ENDIF
+         USE &eARQ
+         PACK
+         GOTO TOP
+         INDEX ON DATA TO &eIND1
+         GOTO TOP
+      ELSE
+         PLQUA ("01")
+	 PMSGR ("Aten‡Æo !",1)
+         PMENSAG ("Arquivo nÆo Localizado - "+eARQ+" - Avise ao Suporte, Tecle Enter.")
+      ENDIF
+      SELE 1
+      SKIP
+   ENDDO
+   USE
+   eMENSAGEM = ""   
+   eMENSAGEM = eBASE + "ARQ_ITEM.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+   USE ARQ_ITEM
+   PACK
+   GOTO TOP
+   INDEX ON CODIGO TO ARQ_ITEM
+   GOTO TOP
+   USE ARQ_ITEM
+   INDEX ON DESCRICAO TO ITEM_DES
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "COTACAO.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+
+   USE COTACAO
+   PACK
+   GOTO TOP
+   INDEX ON NUMERO TO COTACAO
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "PED_COMP.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+
+   USE PED_COMP
+   PACK
+   GOTO TOP
+   INDEX ON NUMERO TO PED_COMP
+   GOTO TOP
+   USE
+   eMENSAGEM = ""
+   eMENSAGEM = eBASE + "HELP1.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+
+   USE HELP1
+   PACK
+   GOTO TOP
+   INDEX ON CHAVE TO HELP1
+   GOTO TOP
+   USE
+   eMENSAGEM = ""   
+   eMENSAGEM = eBASE + "ARQ_TIPO.DBF"
+   PLQUA ("01")
+   PMENSAG (eMENSAGEM)
+
+   USE ARQ_TIPO
+   PACK
+   GOTO TOP
+   INDEX ON CODIGO TO ARQ_TIPO
+   GOTO TOP
+   * Limpeza de Banco de Dados
+   IF sisUSUARIO = "MASTER"
+      PLQUA ("01")  
+      PPERG ("Deseja Zerar Banco de Dados (S/N) ? ")
+      IF sisRESP = "S"
+         SET EXCLUSIVE ON
+         SELE 1
+         USE STATUS
+         PACK
+         GOTO TOP
+         USE
+*         USE LOG_USU
+*         ZAP
+*         GOTO TOP
+         USE
+         SELE 9
+         USE CAD_USU
+         INDEX ON USUARIO TO CAD_USU
+         GOTO TOP
+         USE
+         SELE 1
+         USE CONTATO
+         ZAP
+         GOTO TOP
+         APPEND BLANK
+         INDEX ON CLIENTE TO CONTATO
+         GOTO TOP
+         INDEX ON NUM_CLIE TO NUM_CLIE
+         GOTO TOP
+         USE
+         USE CAR_PADR
+         PACK
+         GOTO TOP
+         INDEX ON NOME TO CAR_PADR
+         GOTO TOP
+         USE
+         USE TIPO_PRO
+         INDEX ON CODIGO TO TIPO_PRO
+         GOTO TOP
+         USE
+         USE CLAS_PRO
+         ZAP
+         GOTO TOP
+         INDEX ON CODIGO TO CLAS_PRO
+         GOTO TOP
+         USE
+         USE CAD_QUAD
+         ZAP
+         GOTO TOP
+         INDEX ON NUM_LOTEAM+NUM_QUADRA TO CAD_QUAD
+         GOTO TOP
+         USE
+         USE CAD_APAR
+         ZAP
+         GOTO TOP
+         INDEX ON NUM_LOTEAM+NUM_BLOCO TO CAD_APAR
+         GOTO TOP
+         USE
+         USE UNI_IMOB
+         ZAP
+         GOTO TOP
+         INDEX ON CLASSE+QUADRA+NUM_IMOVEL TO UNI_IMOB
+         GOTO TOP
+         USE
+         USE CAD_VEND
+         ZAP
+         GOTO TOP
+         INDEX ON CLASSE+QUADRA+NUM_IMOVEL+STR(PARTE,1) TO CAD_VEND
+         GOTO TOP
+         INDEX ON DATA_VENDA TO DATA_VEN
+         GOTO TOP
+         USE
+         USE CAD_QUIT
+         ZAP
+         GOTO TOP
+         USE
+         INDEX ON CLASSE+QUADRA+NUM_IMOVEL+NUM_PARC TO CAD_QUIT
+         GOTO TOP
+         USE
+         USE INDICES
+         PACK
+         GOTO TOP
+         INDEX ON NOME TO INDICES
+         GOTO TOP
+         USE
+         USE TAXA_DIA
+         PACK
+         GOTO TOP
+         INDEX ON DATA TO TAXA_DIA
+         GOTO TOP
+         USE
+         USE TAXA_MES
+         PACK
+         GOTO TOP
+         INDEX ON ANO+MES TO TAXA_MES
+         GOTO TOP
+         USE
+         USE CORRETOR
+         ZAP
+         GOTO TOP
+         INDEX ON CODIGO TO CORRETOR
+         GOTO TOP
+         USE
+         USE RENEGOCI
+         ZAP
+         GOTO TOP
+         INDEX ON CLASSE+QUADRA+NUM_IMOVEL+STR(PARTE,1) TO RENEGOCI
+         GOTO TOP
+         USE
+         USE CPAGAR
+         ZAP
+         GOTO TOP
+         INDEX ON LANCAMENTO TO CPAGAR
+         GOTO TOP
+         INDEX ON DATA_PREV  TO DATA_CPV
+         GOTO TOP
+         INDEX ON DATA_REAL  TO DATA_CPG
+         GOTO TOP
+         INDEX ON NUM_CHEQUE TO NUM_CHEQ
+         GOTO TOP
+         USE
+         USE CRECEBER
+         ZAP
+         GOTO TOP
+         INDEX ON LANCAMENTO TO CRECEBER
+         GOTO TOP
+         INDEX ON DATA_PREV  TO DATA_CRV
+         GOTO TOP
+         INDEX ON DATA_REAL  TO DATA_CRE
+         GOTO TOP
+         USE
+         USE CLIENTES
+         ZAP
+         GOTO TOP
+         INDEX ON CODIGO TO CLIENTES
+         GOTO TOP
+         USE
+         USE FORNECED
+         ZAP
+         GOTO TOP
+         INDEX ON CODIGO TO FORNECED
+         GOTO TOP
+         USE 
+         USE CLAS_FOR
+         ZAP
+         GOTO TOP
+         INDEX ON CODIGO TO CLAS_FOR
+         GOTO TOP
+         USE
+         USE CLASSE_R
+         ZAP
+         GOTO TOP
+         INDEX ON CODIGO TO CLASSE_R
+         GOTO TOP
+         USE
+         USE CLASSE_D
+         ZAP
+         GOTO TOP
+         INDEX ON CODIGO TO CLASSE_D
+         GOTO TOP
+         USE
+         USE MSG_BOLE
+         PACK
+         GOTO TOP
+         INDEX ON TIPO_PROD TO MSG_PROD
+         INDEX ON COD_MSG   TO MSG_BOLE
+         GOTO TOP
+         USE 
+         USE BANCOS
+         PACK
+         GOTO TOP
+         INDEX ON COD_BANCO TO BANCOS
+         GOTO TOP
+         USE
+         SELE 1
+         USE CONTAS
+         ZAP
+         GOTO TOP
+         INDEX ON CODIGO TO CONTAS
+         GOTO TOP
+         USE
+         USE ARQ_ITEM
+         ZAP
+         GOTO TOP
+         INDEX ON CODIGO TO ARQ_ITEM
+         GOTO TOP
+         USE ARQ_ITEM
+         INDEX ON DESCRICAO TO ITEM_DES
+         GOTO TOP
+         USE
+         USE COTACAO
+         ZAP
+         GOTO TOP
+         INDEX ON NUMERO TO COTACAO
+         GOTO TOP
+         USE
+         USE ARQ_TIPO
+         ZAP
+         GOTO TOP
+         INDEX ON CODIGO TO ARQ_TIPO
+         GOTO TOP
+      ENDIF
+   ENDIF
+   CLOSE ALL
+   SET EXCLUSIVE OFF 
+ENDIF
+CLOSE ALL
+  
+RETURN nil
+********************* fim *********************************

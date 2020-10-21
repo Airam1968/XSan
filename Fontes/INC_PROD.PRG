@@ -1,0 +1,387 @@
+*********************************************************************
+* Sistema     : Gest∆o de Financiamentos
+* Copyright   : Airam Miranda de Almeida
+* Programador : Airam Miranda de Almeida
+*********************************************************************
+* Programa    : INC_PROD.PRG
+* Data        : 01/01/99
+* Objetivo    : INCLUSAO DE PRODUTOS PARA VENDA
+* PRG"s       : ---
+* DBF"s       : ---
+* Alteracao   :
+***************************************************************************
+function INC_PROD()
+SAVE SCREEN TO TELA03
+PTIT( "INCLUSAO DE PRODUTOS")
+SELE 1
+USE UNI_IMOB INDEX UNI_IMOB
+GO TOP
+SELE 2
+USE CLAS_PRO INDEX CLAS_PRO
+GOTO TOP
+SELE 3
+USE CAD_QUAD INDEX CAD_QUAD
+GOTO TOP
+SELE 4
+USE CAD_APAR INDEX CAD_APAR
+GOTO TOP
+SELE 5
+* Cadastro de Parcelas
+SELE 2
+* Selecao do produto
+DO WHILE .T.
+   PLIMPA()
+   SET COLOR TO W/N,+W/R
+   eCLAS_PRO = 0
+   eTIPO_PRO = 0
+   @ 05,02 SAY "Produto : "
+   GO TOP
+   DECLARE CAMPO[3],PIC[3],CAB[3],LENS[3]
+   AFIELDS(CAMPO,.T.,LENS)
+   PIC[1]="@R99999"
+   PIC[2]="@R99999"
+   PIC[3]="@S40"
+   CAB[1]="    "
+   CAB[2]="    "
+   CAB[3]="    "
+   DBEDIT(5,15,5,70,CAMPO,"KEYS_4",PIC,CAB," "," - "," ")
+   eCLAS_PRO = CODIGO
+   eTIPO_PRO = TIPO
+   EXIT
+ENDDO
+eNUM_IMOV   = 0
+eSTATUS     = 0
+eMETRAGEM_1 = 0
+eINSCRICA_1 = SPACE(20)
+ePROPRIET_1 = 1
+eQUITADO_1  = .F.
+eESCRITUR_1 = CTOD("")
+eCARTORIO_1 = SPACE(40)
+eLIVRO_1    = SPACE(10)
+eFOLHA_1    = SPACE(10)
+ePROCESSO_1 = .F.
+eOBS_PROC_1 = SPACE(1)
+eMETRAGEM_2 = 0
+eINSCRICA_2 = SPACE(20)
+ePROPRIET_2 = 1
+eQUITADO_2  = .F.
+eESCRITUR_2 = CTOD("")
+eCARTORIO_2 = SPACE(40)
+eLIVRO_2    = SPACE(10)
+eFOLHA_2    = SPACE(10)
+ePROCESSO_2 = .F.
+eOBS_PROC_2 = SPACE(1)
+* Selecao da rotina de inclusao conforme o tipo de produto
+DO CASE
+   CASE eTIPO_PRO = 1
+      * Inclusao de Loteamentos
+      SELE 3
+      SET FILTER TO NUM_LOTEAM = STR(eCLAS_PRO,5) .AND. .NOT. CADASTRO
+      GOTO TOP
+      IF EOF()
+	 PLQUA("01")
+         PMSGR( "N∆o H† Grupos Dispon°veis",3)
+	 CLOSE DATABASES
+	 RESTORE SCREEN FROM TELA03
+	 RETURN nil
+      ENDIF
+      eQUADRA   = 0
+      @ 06,02 SAY sisGRUPO1+" : "
+      GO TOP
+      DECLARE CAMPO[4],PIC[4],CAB[4],LENS[4]
+      AFIELDS(CAMPO,.T.,LENS)
+      PIC[1]="@R99999"
+      PIC[2]="@R99999"
+      PIC[3]="@R99999"
+      PIC[4]="@S99999"
+      CAB[1]="    "
+      CAB[2]="    "
+      CAB[3]="    "
+      CAB[4]="    "
+      DBEDIT(6,14,6,45,CAMPO,"KEYS_4",PIC,CAB," "," - "," ")
+      eQUADRA     = NUM_QUADRA
+      eNUM_INICIO = NUM_INICIO
+      eNUM_FINAL  = NUM_FINAL
+      PLQUA("01")
+      PPERG ( "Confirma a Criacao do "+sisPROD1+" de ("+ALLTRIM(STR(eNUM_INICIO,5))+") a ("+ALLTRIM(STR(eNUM_FINAL,5))+") (S/N) ? ")
+      IF sisRESP = "S"
+	 PLQUA("01")
+	 PPERG ( "Confirma Numeracao Sequencial (S/N) ? ")
+	 IF sisRESP = "S"
+	    eAUX = eNUM_INICIO
+	    DO WHILE eAUX <= eNUM_FINAL
+	       PLQUA("01")
+			   PMENSAG("Cadastrando "+sisPROD1+" ("+STR(eCLAS_PRO,5)+"), "+sisUNID1+" ("+STR(eAUX,5)+"), Aguarde ...")
+	       SELE 1
+	       APPEND BLANK
+	       IF F_BLOQR()
+		  REPLACE CLASSE     WITH STR(eCLAS_PRO,5),;
+			  QUADRA     WITH eQUADRA,;
+			  NUM_IMOVEL WITH STR(eAUX,5)
+		  REPLACE STATUS     WITH eSTATUS,;
+			  METRAGEM_1 WITH eMETRAGEM_1,;
+			  INSCRICA_1 WITH eINSCRICA_1
+		  REPLACE PROPRIET_1 WITH ePROPRIET_1,;
+			  QUITADO_1  WITH eQUITADO_1,;
+			  ESCRITUR_1 WITH eESCRITUR_1
+		  REPLACE CARTORIO_1 WITH eCARTORIO_1,;
+			  LIVRO_1    WITH eLIVRO_1,;
+			  FOLHA_1    WITH eFOLHA_1
+		  REPLACE PROCESSO_1 WITH ePROCESSO_1,;
+			  METRAGEM_2 WITH eMETRAGEM_2,;
+			  INSCRICA_2 WITH eINSCRICA_2
+		  REPLACE PROPRIET_2 WITH ePROPRIET_2,;
+			 QUITADO_2  WITH eQUITADO_2,;
+			  ESCRITUR_2 WITH eESCRITUR_2
+		  REPLACE CARTORIO_2 WITH eCARTORIO_2,;
+			  LIVRO_2    WITH eLIVRO_2,;
+			  FOLHA_2    WITH eFOLHA_2
+		  REPLACE PROCESSO_2 WITH ePROCESSO_2
+		  eAUX = eAUX + 1
+		  UNLOCK
+	       ENDIF
+	    ENDDO
+	    SELE 5
+	    USE CAD_PARC
+	    eIND_CLAS = STR(eCLAS_PRO,5)
+	    eIND_QUAD = eQUADRA
+	    eZERO = "000"
+	    eARQ  = "CP"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_CLAS))))+ALLTRIM(eIND_CLAS)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_QUAD))))+ALLTRIM(eIND_QUAD) 
+	    eIND1 = "IG"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_CLAS))))+ALLTRIM(eIND_CLAS)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_QUAD))))+ALLTRIM(eIND_QUAD) 
+	    eIND2 = "IV"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_CLAS))))+ALLTRIM(eIND_CLAS)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_QUAD))))+ALLTRIM(eIND_QUAD) 
+	    eIND3 = "IP"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_CLAS))))+ALLTRIM(eIND_CLAS)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_QUAD))))+ALLTRIM(eIND_QUAD) 
+	    COPY TO &eARQ STRUC
+	    USE &eARQ 
+	    GOTO TOP
+	    INDEX ON CLASSE+QUADRA+NUM_IMOVEL+NUM_PARC TO &eIND1
+	    GOTO TOP
+	    INDEX ON DATA_VENC TO &eIND2
+	    GOTO TOP
+	    INDEX ON DATA_PGTO TO &eIND3
+	    GOTO TOP
+	    USE &eARQ INDEX &eIND1,&eIND2,&eIND3
+	    GOTO TOP
+	    SELE 1
+	 ELSE
+	    eAUX = eNUM_INICIO
+	    DO WHILE eAUX <= eNUM_FINAL
+	       DO WHILE .T.
+		  PLQUA("01")
+		  eLOTE = 0
+                  @ 23,00 SAY "Informe o Numero do "+STR(eAUX,5)+"o. "+sisUNID1+" : " GET eLOTE PICT "99999"
+		  READ
+		  IF eLOTE = 0
+		     PLQUA("01")
+		     PMSGR( "Numero Invalido",3)
+		     LOOP
+		  ELSE
+		     SELE 1
+		     GOTO TOP
+		     SEEK STR(eCLAS_PRO,5)+eQUADRA+STR(eLOTE,5)
+		     IF FOUND()
+			PLQUA("01")
+			PMSGR( "Numero Ja Cadastrado",3)
+			LOOP
+		     ELSE
+			PLQUA("01")
+                        PPERG ( "Confirma o Cadastrando do "+sisUNID1+" ("+STR(eLOTE,5)+"), (S/N) ? ")
+			IF sisRESP = "S"
+			   EXIT
+			ELSE
+			   LOOP
+			ENDIF
+		     ENDIF
+		  ENDIF
+	       ENDDO
+	       PLQUA("01")
+               PMENSAG("Cadastrando "+sisPROD1+" ("+STR(eCLAS_PRO,5)+"), "+sisUNID1+" ("+STR(eLOTE,5)+"), Aguarde ...")
+	       SELE 1
+	       APPEND BLANK
+	       IF F_BLOQR()
+		  REPLACE CLASSE     WITH STR(eCLAS_PRO,5),;
+			  QUADRA     WITH eQUADRA,;
+			  NUM_IMOVEL WITH STR(eLOTE,5)
+		  REPLACE STATUS     WITH eSTATUS,;
+			  METRAGEM_1 WITH eMETRAGEM_1,;
+			  INSCRICA_1 WITH eINSCRICA_1
+		  REPLACE PROPRIET_1 WITH ePROPRIET_1,;
+			  QUITADO_1  WITH eQUITADO_1,;
+			  ESCRITUR_1 WITH eESCRITUR_1
+		  REPLACE CARTORIO_1 WITH eCARTORIO_1,;
+			  LIVRO_1    WITH eLIVRO_1,;
+			  FOLHA_1    WITH eFOLHA_1
+		  REPLACE PROCESSO_1 WITH ePROCESSO_1,;
+			  METRAGEM_2 WITH eMETRAGEM_2,;
+			  INSCRICA_2 WITH eINSCRICA_2
+		  REPLACE PROPRIET_2 WITH ePROPRIET_2,;
+			  QUITADO_2  WITH eQUITADO_2,;
+			  ESCRITUR_2 WITH eESCRITUR_2
+		  REPLACE CARTORIO_2 WITH eCARTORIO_2,;
+			  LIVRO_2    WITH eLIVRO_2,;
+			  FOLHA_2    WITH eFOLHA_2
+		  REPLACE PROCESSO_2 WITH ePROCESSO_2
+		  eAUX = eAUX + 1
+		  UNLOCK
+	       ENDIF
+	    ENDDO
+	    SELE 5
+	    USE CAD_PARC
+	    eIND_CLAS = STR(eCLAS_PRO,5)
+	    eIND_QUAD = eQUADRA
+	    eZERO = "000"
+	    eARQ  = "CP"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_CLAS))))+ALLTRIM(eIND_CLAS)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_QUAD))))+ALLTRIM(eIND_QUAD) 
+	    eIND1 = "IG"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_CLAS))))+ALLTRIM(eIND_CLAS)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_QUAD))))+ALLTRIM(eIND_QUAD) 
+	    eIND2 = "IV"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_CLAS))))+ALLTRIM(eIND_CLAS)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_QUAD))))+ALLTRIM(eIND_QUAD) 
+	    eIND3 = "IP"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_CLAS))))+ALLTRIM(eIND_CLAS)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_QUAD))))+ALLTRIM(eIND_QUAD) 
+	    COPY TO &eARQ STRUC
+	    USE &eARQ 
+	    GOTO TOP
+	    INDEX ON CLASSE+QUADRA+NUM_IMOVEL+NUM_PARC TO &eIND1
+	    GOTO TOP
+	    INDEX ON DATA_VENC TO &eIND2
+	    GOTO TOP
+	    INDEX ON DATA_PGTO TO &eIND3
+	    GOTO TOP
+	    USE &eARQ INDEX &eIND1,&eIND2,&eIND3
+	    GOTO TOP
+	    SELE 1
+	 ENDIF
+	 SELE 3
+         GOTO TOP
+         SEEK STR(eCLAS_PRO,5)+eQUADRA
+	 IF F_BLOQR()
+	    REPLACE CADASTRO WITH .T.
+	    UNLOCK
+	 ENDIF
+         GOTO TOP
+	 SELE 1
+      ENDIF
+   CASE eTIPO_PRO = 2
+      * Inclusao de Apartamentos
+      SELE 4
+      SET FILTER TO NUM_LOTEAM = STR(eCLAS_PRO,5) .AND. .NOT. CADASTRO
+      GOTO TOP
+      IF EOF()
+	 PLQUA("01")
+         PMSGR( "N∆o H† Grupos Dispon°veis",3)
+	 CLOSE DATABASES
+	 RESTORE SCREEN FROM TELA03
+	 RETURN nil
+      ENDIF
+      eBLOCO    = 0
+      @ 06,02 SAY sisGRUPO2+" : "
+      GO TOP
+      DECLARE CAMPO[3],PIC[3],CAB[3],LENS[3]
+      AFIELDS(CAMPO,.T.,LENS)
+      PIC[1]="@R99999"
+      PIC[2]="@R99999"
+      PIC[3]="@R99999"
+      CAB[1]="    "
+      CAB[2]="    "
+      CAB[3]="    "
+      DBEDIT(6,08,6,76,CAMPO,"KEYS_4",PIC,CAB," "," - "," ")
+      eBLOCO      = NUM_BLOCO
+      eQUANTIDADE = QUANTIDADE
+      PLQUA("01")
+      PPERG ( "Confirma a Criacao de ("+ALLTRIM(STR(eQUANTIDADE,5))+") "+sisPROD2+" (S/N) ? ")
+      IF sisRESP = "S"
+	 eAUX = 1
+	 DO WHILE eAUX <= eQUANTIDADE
+	    DO WHILE .T.
+	       PLQUA("01")
+	       eAPTO = 0
+               @ 23,00 SAY "Informe o Numero do "+STR(eAUX,5)+"o. "+sisUNID1+" : " GET eAPTO PICT "99999"
+	       READ
+	       IF eAPTO = 0
+		  PLQUA("01")
+		  PMSGR( "Numero Invalido",3)
+		  LOOP
+	       ELSE
+		  SELE 1
+		  GOTO TOP
+		  SEEK STR(eCLAS_PRO,5)+eBLOCO+STR(eAPTO,5)
+		  IF FOUND()
+		     PLQUA("01")
+		     PMSGR( "Numero Ja Cadastrado",3)
+		     LOOP
+		  ELSE
+		     PLQUA("01")
+                     PPERG ( "Confirma o Cadastrando do "+sisUNID1+" ("+STR(eAPTO,5)+"), (S/N) ? ")
+		     IF sisRESP = "S"
+			EXIT
+		     ELSE
+			LOOP
+		     ENDIF
+		  ENDIF
+	       ENDIF
+	    ENDDO
+	    PLQUA("01")
+            PMENSAG("Cadastrando "+sisUNID1+" ("+STR(eAPTO,5)+"), Aguarde ...")
+	    SELE 1
+	    APPEND BLANK
+	    IF F_BLOQR()
+	       REPLACE CLASSE     WITH STR(eCLAS_PRO,5),;
+		       QUADRA     WITH eBLOCO,;
+		       NUM_IMOVEL WITH STR(eAPTO,5)
+	       REPLACE STATUS     WITH eSTATUS,;
+		       METRAGEM_1 WITH eMETRAGEM_1,;
+		       INSCRICA_1 WITH eINSCRICA_1
+	       REPLACE PROPRIET_1 WITH ePROPRIET_1,;
+		       QUITADO_1  WITH eQUITADO_1,;
+		       ESCRITUR_1 WITH eESCRITUR_1
+	       REPLACE CARTORIO_1 WITH eCARTORIO_1,;
+		       LIVRO_1    WITH eLIVRO_1,;
+		       FOLHA_1    WITH eFOLHA_1
+	       REPLACE PROCESSO_1 WITH ePROCESSO_1,;
+		       METRAGEM_2 WITH eMETRAGEM_2,;
+		       INSCRICA_2 WITH eINSCRICA_2
+	       REPLACE PROPRIET_2 WITH ePROPRIET_2,;
+		       QUITADO_2  WITH eQUITADO_2,;
+		       ESCRITUR_2 WITH eESCRITUR_2
+	       REPLACE CARTORIO_2 WITH eCARTORIO_2,;
+		       LIVRO_2    WITH eLIVRO_2,;
+		       FOLHA_2    WITH eFOLHA_2
+	       REPLACE PROCESSO_2 WITH ePROCESSO_2
+	       UNLOCK
+	    ENDIF
+	    eAUX = eAUX + 1
+	 ENDDO
+	 SELE 5
+	 USE CAD_PARC
+	 eIND_CLAS = STR(eCLAS_PRO,5)
+	 eIND_QUAD = eBLOCO
+	 eZERO = "000"
+	 eARQ  = "CP"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_CLAS))))+ALLTRIM(eIND_CLAS)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_QUAD))))+ALLTRIM(eIND_QUAD) 
+	 eIND1 = "IG"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_CLAS))))+ALLTRIM(eIND_CLAS)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_QUAD))))+ALLTRIM(eIND_QUAD) 
+	 eIND2 = "IV"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_CLAS))))+ALLTRIM(eIND_CLAS)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_QUAD))))+ALLTRIM(eIND_QUAD) 
+	 eIND3 = "IP"+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_CLAS))))+ALLTRIM(eIND_CLAS)+SUBSTR(eZERO,1,(3-LEN(ALLTRIM(eIND_QUAD))))+ALLTRIM(eIND_QUAD) 
+	 COPY TO &eARQ STRUC
+	 USE &eARQ 
+	 GOTO TOP
+	 INDEX ON CLASSE+QUADRA+NUM_IMOVEL+NUM_PARC TO &eIND1
+	 GOTO TOP
+	 INDEX ON DATA_VENC TO &eIND2
+	 GOTO TOP
+	 INDEX ON DATA_PGTO TO &eIND3
+	 GOTO TOP
+	 USE &eARQ INDEX &eIND1,&eIND2,&eIND3
+	 GOTO TOP
+	 SELE 4
+         GOTO TOP
+         SEEK STR(eCLAS_PRO,5)+eBLOCO
+	 IF F_BLOQR()
+	    REPLACE CADASTRO WITH .T.
+	    UNLOCK
+	 ENDIF
+         GOTO TOP
+	 SELE 1
+      ENDIF
+   OTHERWISE
+      * Inclusao de Casa/Terrenos/etc...
+      DO PDESENV
+ENDCASE
+CLOSE DATABASES
+RESTORE SCREEN FROM TELA03
+RETURN nil
+*************************  fim  *********************************
+
